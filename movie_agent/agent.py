@@ -5,7 +5,7 @@ import os
 
 from openai import OpenAI
 
-from tools import TOOLS, get_movie_details, search_movies
+from .tools import TOOLS, get_movie_details, search_movies
 
 INSTRUCTIONS = """You plan movie nights. Give up to three recommendations with short
 explanations of how they fit the group's preferences. Respect hard constraints and

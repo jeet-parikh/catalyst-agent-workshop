@@ -5,8 +5,8 @@ from unittest.mock import Mock, patch
 
 from streamlit.testing.v1 import AppTest
 
-from agent import run_agent
-from tools import search_movies
+from movie_agent.agent import run_agent
+from movie_agent.tools import search_movies
 
 
 def response(text="", calls=()):
@@ -40,7 +40,7 @@ class AgentTests(unittest.TestCase):
             return [response(calls=[reasoning, first_call]), response("Done")][len(snapshots) - 1]
         client.responses.create.side_effect = create
         events = []
-        with patch("tools._get", return_value=DISCOVER):
+        with patch("movie_agent.tools._get", return_value=DISCOVER):
             self.assertEqual(run_agent([], client=client, on_call=lambda *event: events.append(event)), "Done")
         self.assertIs(snapshots[1][0], reasoning)
         self.assertEqual(snapshots[1][2]["call_id"], "call_1")
@@ -60,7 +60,7 @@ class AgentTests(unittest.TestCase):
         client = Mock()
         client.responses.create.side_effect = [response(calls=[call()]), response("Unavailable")]
         events = []
-        with patch("tools._get", side_effect=RuntimeError("TMDB down")):
+        with patch("movie_agent.tools._get", side_effect=RuntimeError("TMDB down")):
             answer = run_agent([], client=client, on_call=lambda *event: events.append(event))
         self.assertEqual(answer, "Unavailable")
         self.assertEqual(events[0][2], {"error": "TMDB down"})
@@ -68,7 +68,7 @@ class AgentTests(unittest.TestCase):
 
 class ToolTests(unittest.TestCase):
     def test_discover_uses_correct_query(self):
-        with patch("tools._get", return_value={"results": []}) as get:
+        with patch("movie_agent.tools._get", return_value={"results": []}) as get:
             search_movies(["comedy", "mystery"], ["horror"], 119)
         params = get.call_args.args[1]
         self.assertEqual(params["with_genres"], "35|9648")
@@ -79,7 +79,7 @@ class ToolTests(unittest.TestCase):
 class InterfaceTests(unittest.TestCase):
     def test_missing_key(self):
         with patch.dict("os.environ", {"OPENAI_API_KEY": ""}):
-            app = AppTest.from_file(str(Path(__file__).resolve().parents[1] / "app.py")).run()
+            app = AppTest.from_file(str(Path(__file__).resolve().parents[1] / "movie_agent" / "page.py")).run()
             self.assertFalse(app.exception)
             app.chat_input[0].set_value("Find a movie").run()
             self.assertTrue(any("OPENAI_API_KEY" in item.value for item in app.error))

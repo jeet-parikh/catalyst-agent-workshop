@@ -12,7 +12,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from openai import OpenAI
 
-from repo import check_citation
+from .repo import check_citation
 
 MODEL = os.getenv("INVESTIGATOR_MODEL", "gpt-4.1-mini")
 MAX_WORKERS = 4

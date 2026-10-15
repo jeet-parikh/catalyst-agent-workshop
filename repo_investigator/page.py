@@ -1,4 +1,4 @@
-"""Run with: streamlit run investigator/demo.py"""
+"""Workshop 2 page. Open it from app.py."""
 
 import json
 import os
@@ -9,18 +9,25 @@ from datetime import datetime
 from pathlib import Path
 
 import streamlit as st
-from dotenv import load_dotenv
 
-from agents import MODEL, Investigation
-from repo import Repo
+from repo_investigator.agents import MODEL, Investigation
+from repo_investigator.repo import Repo
 
 RUNS = Path(__file__).parent / "runs"
+DIAGRAM = Path(__file__).parent / "architecture.png"
 MODES = {"Multi-agent": "multi", "Single agent (baseline)": "single"}
 
-load_dotenv(Path(__file__).resolve().parents[1] / ".env")
-st.set_page_config(page_title="Repo Investigator", page_icon="🔎", layout="wide")
 st.title("🔎 Repo Investigator")
 st.caption("y/cs · Read-only agents: route, delegate, check the evidence, answer")
+
+
+@st.dialog("How the Repo Investigator works", width="large")
+def show_diagram():
+    st.image(str(DIAGRAM))
+
+
+if st.button("Show agent diagram", icon=":material/account_tree:"):
+    show_diagram()
 
 
 @st.cache_resource(show_spinner=False, ttl=3600)

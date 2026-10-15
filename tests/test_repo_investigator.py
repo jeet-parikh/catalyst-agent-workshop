@@ -1,16 +1,13 @@
 import io
 import json
-import sys
 import tarfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "investigator"))
-
-from agents import PLANNER, ROUTER, WORKER, WRITER, Investigation  # noqa: E402
-from repo import Repo, check_citation, parse_repo  # noqa: E402
+from repo_investigator.agents import PLANNER, ROUTER, WORKER, WRITER, Investigation
+from repo_investigator.repo import Repo, check_citation, parse_repo
 
 FILES = {
     "tools.py": "import os\n\ndef search_movies(genres, exclude_genres, max_runtime):\n    return {}\n",
@@ -172,7 +169,7 @@ class DemoTests(unittest.TestCase):
     def test_missing_key(self):
         from streamlit.testing.v1 import AppTest
         with patch.dict("os.environ", {"OPENAI_API_KEY": ""}):
-            app = AppTest.from_file(str(Path(__file__).resolve().parents[1] / "investigator" / "demo.py")).run()
+            app = AppTest.from_file(str(Path(__file__).resolve().parents[1] / "repo_investigator" / "page.py")).run()
             self.assertFalse(app.exception)
             next(b for b in app.button if b.label == "Investigate").click().run()
             self.assertTrue(any("OPENAI_API_KEY" in item.value for item in app.error))
